@@ -9,25 +9,38 @@ namespace BlockchainCampTask.Models
 {
     public class Block
     {
-        public Block(string previous_block_hash, string[] rows, int timestamp)
+        public Block(string previous_block_hash, string[] rows)
         {
-            this.previous_block_hash = previous_block_hash;
-            if (rows.Length != 5) throw new ArgumentException();
-            this.rows = rows;
-            this.timestamp = timestamp;
-            string str = Newtonsoft.Json.JsonConvert.SerializeObject(this);
-            using (var sha256 = SHA256.Create())
-            {
-                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(str));
-                this.block_hash = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
-            }
+            if (rows.Length != RowsCount || String.IsNullOrEmpty(previous_block_hash))
+                throw new ArgumentException();
 
+            this.previous_block_hash = previous_block_hash;
+            this.rows = rows;
+            this.timestamp = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
+            this.block_hash = GetHash();
         }
+        public static readonly int RowsCount = 5;
         public string previous_block_hash { get; }
         public string[] rows { get; }
-        //int unixTime = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
         public int timestamp { get; }
         public string block_hash { get; }
+
+        public string GetHash()
+        {
+            string data = this.previous_block_hash;
+
+            foreach (string row in rows)
+                data += row;
+
+            data += timestamp.ToString();
+            string res;
+            using (var sha256 = SHA256.Create())
+            {
+                var hashedBytes = sha256.ComputeHash(Encoding.UTF8.GetBytes(data));
+                res = BitConverter.ToString(hashedBytes).Replace("-", "").ToLower();
+            }
+            return res;
+        }
 
     }
 }
