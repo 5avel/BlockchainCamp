@@ -12,10 +12,9 @@ namespace BlockchainCampTask.Controllers
 
         // GET api/last_blocks/5
         [HttpGet("last_blocks/{count}")]
-        public string Get(int count)
+        public IEnumerable<Models.Block> Get(int count)
         {
-            Blockchain.Instance.GetLastBlocks(count);
-            return "value";
+            return Blockchain.Instance.GetLastBlocks(count);
         }
 
         // POST api/add_data/data:'{data}'
@@ -23,6 +22,7 @@ namespace BlockchainCampTask.Controllers
         public IActionResult Post(string data)
         {
             Blockchain.Instance.AddData(data);
+           
             return Ok();
         }
 
@@ -31,7 +31,7 @@ namespace BlockchainCampTask.Controllers
         public IActionResult PostBody([FromBody]Data data)
         {
             Blockchain.Instance.AddData(data.Value);
-            return Ok(); 
+            return Ok();
         }
 
     }

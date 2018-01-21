@@ -23,7 +23,7 @@ namespace BlockchainCampTask.Models
         public string previous_block_hash { get; }
         public string[] rows { get; }
         public int timestamp { get; }
-        public string block_hash { get; }
+        public string block_hash {get;}
 
         public string GetHash()
         {

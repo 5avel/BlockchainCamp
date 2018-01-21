@@ -26,9 +26,10 @@ namespace BlockchainCampTask
         public IEnumerable<Block> GetLastBlocks(int blocksCount = 0)
         {
             List<Block> blocks = new List<Block>();
-            if (blocksCount == 0)
+            if (blocksCount > Blocks.Count) blocksCount = Blocks.Count;
+            if (blocksCount <= 0)
             {
-               // return Blocks.ToList<Block>();
+                return null;
             }
             else
             {
@@ -39,7 +40,6 @@ namespace BlockchainCampTask
                 }
             }
             return blocks;
-
         }
 
         private void CreateNewBlock()
