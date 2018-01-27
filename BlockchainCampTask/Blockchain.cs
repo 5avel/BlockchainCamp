@@ -1,7 +1,10 @@
 ﻿using BlockchainCampTask.Models;
+using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
+using System.Text;
 using System.Threading.Tasks;
 
 namespace BlockchainCampTask
@@ -12,12 +15,14 @@ namespace BlockchainCampTask
 
         public Block LastBlock { get; private set; }
 
-        private List<string> _listData = new List<string>();
+        private List<Transaction> _listTransaction = new List<Transaction>();
 
-        public void AddData(string data)
+        private string fileToRead = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
+
+        public void AddTransaction(Transaction transaction)
         {
-            _listData.Add(data);
-            if(_listData.Count == Block.RowsCount)
+            _listTransaction.Add(transaction);
+            if(_listTransaction.Count == Block.RowsCount)
             {
                 CreateNewBlock();
             }
@@ -45,11 +50,16 @@ namespace BlockchainCampTask
         private void CreateNewBlock()
         {
             Block block = new Block(
-                   LastBlock != null ? LastBlock.block_hash : "0",
-                   _listData.ToArray<string>());
+                   LastBlock != null ? LastBlock.block_hash : "0", _listTransaction);
+
+            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", block.block_hash)))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, block);
+            }
             Blocks.Add(block.block_hash, block);
             LastBlock = block;
-            _listData.Clear();
+            _listTransaction.Clear();
         }
 
         private Blockchain()

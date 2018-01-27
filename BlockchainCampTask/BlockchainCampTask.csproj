@@ -5,6 +5,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Folder Include="blocks\" />
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
