@@ -8,7 +8,7 @@ namespace BlockchainCampTask.Models
     public class Link
     {
       
-        public int id { get; set; }
+        public string id { get; set; }
         public string url { get; set; }
     }
 }

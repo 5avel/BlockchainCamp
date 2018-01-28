@@ -11,13 +11,9 @@ namespace BlockchainCampTask
 {
     public class Blockchain
     {
-        public Dictionary<string, Block> Blocks { get; private set; }
 
-        public Block LastBlock { get; private set; }
-
+        private object syncRoot = new object();
         private List<Transaction> _listTransaction = new List<Transaction>();
-
-        private string fileToRead = AppContext.BaseDirectory.Substring(0, AppContext.BaseDirectory.IndexOf("bin"));
 
         public void AddTransaction(Transaction transaction)
         {
@@ -28,44 +24,143 @@ namespace BlockchainCampTask
             }
         }
 
+        private Status _status;
+        public Status CurStatus
+        {
+            get
+            {
+                if(_status == null)
+                {
+                    Status s;
+                    lock (syncRoot)
+                    {
+                        using (StreamReader file = File.OpenText(String.Format("./blocks/{0}.json", "Status")))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            s = (Status)serializer.Deserialize(file, typeof(Status));
+                        }
+                    }
+                    _status = s;
+                }
+                return _status;
+            }
+            set
+            {
+                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, value);
+                }
+                _status = value;
+            }
+        }
+
+        private List<Link> _links;
+        public List<Link> Links
+        {
+            get
+            {
+                if (_links == null)
+                {
+                    List<Link> l;
+                    lock (syncRoot)
+                    {
+                        using (StreamReader file = File.OpenText(String.Format("./blocks/{0}.json", "Links")))
+                        {
+                            JsonSerializer serializer = new JsonSerializer();
+                            l = (List<Link>)serializer.Deserialize(file, typeof(List<Link>));
+                        }
+                    }
+                    _links = l;
+                }
+                return _links;
+            }
+            set
+            {
+                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Links")))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, value);
+                }
+                _links = value;
+            }
+        }
+
+        public void UpdateStatus()
+        {
+            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, CurStatus);
+            }
+
+            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Links")))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, Links);
+            }
+
+        }
+
         public IEnumerable<Block> GetLastBlocks(int blocksCount = 0)
         {
             List<Block> blocks = new List<Block>();
-            if (blocksCount > Blocks.Count) blocksCount = Blocks.Count;
-            if (blocksCount <= 0)
+            if (CurStatus.last_hash == "0") return blocks;
+
+            Block lastBlock = GetBlockByHash(CurStatus.last_hash);
+            Block curBlock = lastBlock;
+            blocks.Add(lastBlock); // первый блок
+            while(curBlock.prev_hash != "0")
             {
-                return null;
-            }
-            else
-            {
-                blocks.Add(LastBlock);
-                for (int i = 1; i < blocksCount; i++)
-                {
-                    blocks.Add(Blocks[blocks[i - 1].previous_block_hash]);
-                }
+                curBlock = GetBlockByHash(curBlock.prev_hash);
+                blocks.Add(curBlock);
             }
             return blocks;
         }
 
-        private void CreateNewBlock()
+        private Block GetBlockByHash(string hash)
         {
-            Block block = new Block(
-                   LastBlock != null ? LastBlock.block_hash : "0", _listTransaction);
+            Block b;
+            using (StreamReader file = File.OpenText(String.Format("./blocks/{0}.json", hash)))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                b = (Block)serializer.Deserialize(file, typeof(Block));
+            }
+            return b;
+        }
 
-            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", block.block_hash)))
+        public void AddNewBlosk(Block block)
+        {
+            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", block.hash)))
             {
                 JsonSerializer serializer = new JsonSerializer();
                 serializer.Serialize(file, block);
             }
-            Blocks.Add(block.block_hash, block);
-            LastBlock = block;
+
+            CurStatus.last_hash = block.hash;
+            UpdateStatus();
+        }
+
+
+        private void CreateNewBlock()
+        {
+            Block block = new Block(CurStatus.last_hash, _listTransaction);
+
+            using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", block.hash)))
+            {
+                JsonSerializer serializer = new JsonSerializer();
+                serializer.Serialize(file, block);
+            }
+
+            CurStatus.last_hash = block.hash;
+            UpdateStatus();
+
             _listTransaction.Clear();
         }
 
         private Blockchain()
         {
-            Blocks = new Dictionary<string, Block>();
-            LastBlock = null;
+          
         }
         private static Blockchain instance;
         public static Blockchain Instance
