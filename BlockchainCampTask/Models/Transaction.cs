@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Newtonsoft.Json;
 
 namespace BlockchainCampTask.Models
 {
@@ -13,6 +14,8 @@ namespace BlockchainCampTask.Models
     {
         public string from { get; set; }
         public string to { get; set; }
-        public int amount { get; set; }
+
+        [JsonConverter(typeof(FormatConverter))]
+        public Int64 amount { get; set; }
     }
 }

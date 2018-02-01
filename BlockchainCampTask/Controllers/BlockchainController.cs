@@ -26,19 +26,12 @@ namespace BlockchainCampTask.Controllers
         [HttpPost("management/add_link")]
         public IActionResult AddLink([FromBody]Neighbour neighbour)
         {
-            foreach(string n in Blockchain.Instance.CurStatus.neighbours)
+            if(Blockchain.Instance.AddNewNeighbour(neighbour))
             {
-                if (link.id == n) return Ok(new { msg = "Error " });
+                Console.WriteLine("This link already exists.");
+                return Ok(new { msg = "This link already exists."});
             }
-            Blockchain.Instance.CurStatus.neighbours.Add(link.id);
-            Blockchain.Instance.Links.Add(link);
-
-            
-
-            Blockchain.Instance.UpdateStatus();
-
-            Console.WriteLine("Add id - {0}", link.id);
-
+            Console.WriteLine("Add id - {0}", neighbour.id);
             return Ok();
         }
 
@@ -47,7 +40,11 @@ namespace BlockchainCampTask.Controllers
         public IActionResult Sync()
         {
             Console.WriteLine("Sync");
-            return Ok();
+            if (Blockchain.Instance.Sync())
+            {
+                return Ok(new { succeess = true, status = "OK", message = "" });
+            }
+            return Ok(new { succeess = false, err_code = "ERR", message = "" });
         }
 
         //GET /management/status
@@ -64,7 +61,6 @@ namespace BlockchainCampTask.Controllers
         [HttpGet("blockchain/get_blocks/{num_blocks}")]
         public IEnumerable<Models.Block> GetBlocks(int num_blocks)
         {
-
             Console.WriteLine("GetBlocks");
             return Blockchain.Instance.GetLastBlocks(num_blocks);
         }
@@ -77,11 +73,12 @@ namespace BlockchainCampTask.Controllers
         [HttpPost("blockchain/receive_update")]
         public IActionResult ReceiveUpdate([FromBody]RUData ruData)
         {
-            Console.WriteLine("ReceiveUpdate");
-
-            Blockchain.Instance.AddNewBlosk(ruData.block);
-          
-            return Ok();
+            Console.WriteLine("ReceiveUpdate id-{0}", ruData.sender_id);
+            if(Blockchain.Instance.AddNewBlosk(ruData.block, ruData.sender_id))
+            {
+                return Ok(new { succeess = true, err_code = "OK", message = ""});
+            }
+            return Ok(new { succeess = false, err_code = "ERR_WRONG_HASH", message = "" });
         }
 
         public class RUData

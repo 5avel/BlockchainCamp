@@ -23,7 +23,9 @@ namespace BlockchainCampTask.Models
         public static readonly int RowsCount = 5;
         public string prev_hash { get; }
         public List<Transaction> tx { get; }
-        public int ts { get; }
+
+        [JsonConverter(typeof(FormatConverter))]
+        public Int64 ts { get; }
         public string hash {get;}
 
         public string GetHash()
@@ -47,5 +49,28 @@ namespace BlockchainCampTask.Models
             return res;
         }
 
+    }
+
+    public class FormatConverter : JsonConverter
+    {
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
+        {
+            throw new NotImplementedException();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (objectType == typeof(Int64))
+            {
+                return Convert.ToInt64(reader.Value.ToString().Replace(".", string.Empty));
+            }
+
+            return reader.Value;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(int);
+        }
     }
 }
