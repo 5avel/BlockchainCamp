@@ -24,7 +24,7 @@ namespace BlockchainCampTask.Controllers
         /*{	id:int,
         url:string}*/
         [HttpPost("management/add_link")]
-        public IActionResult AddLink([FromBody]Link link)
+        public IActionResult AddLink([FromBody]Neighbour neighbour)
         {
             foreach(string n in Blockchain.Instance.CurStatus.neighbours)
             {

@@ -16,38 +16,25 @@ namespace BlockchainCampTask
     {
         public static void Main(string[] args)
         {
-            if(!File.Exists(String.Format("./blocks/{0}.json", "Status")))
-            {
-                Status status = new Status();
-                status.last_hash = "0";
-                status.neighbours = new List<string>();
-                status.url = "192.168.44.66:8770";
-                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Serialize(file, status);
-                }
-            }
+            //if(!File.Exists(String.Format("./blocks/{0}.json", "Status")))
+            //{
+            //    Status status = new Status();
+            //    status.last_hash = "0";
+            //    status.neighbours = new List<Link>();
+            //    using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
+            //    {
+            //        JsonSerializer serializer = new JsonSerializer();
+            //        serializer.Serialize(file, status);
+            //    }
+            //}
 
-            if (!File.Exists(String.Format("./blocks/{0}.json", "Links")))
-            {
-                List<Link> links = new List<Link>();
-               
-                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Links")))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Serialize(file, links);
-                }
-            }
-
-            Console.WriteLine("Test");
             BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                    .UseUrls("http://192.168.44.66:8770")
+            //.UseUrls("localhost:80")
                 .Build();
     }
 }
