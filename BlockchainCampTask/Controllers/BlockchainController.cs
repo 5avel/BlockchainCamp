@@ -23,7 +23,7 @@ namespace BlockchainCampTask.Controllers
         /*{	id:int,
         url:string}*/
         [HttpPost("management/add_link")]
-        public IActionResult AddLink([FromBody]Link link)
+        public IActionResult AddLink([FromBody]Neighbour neighbour)
         {
             //Blockchain.Instance.AddData(transaction.from);
             return Ok();

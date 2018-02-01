@@ -16,17 +16,17 @@ namespace BlockchainCampTask
     {
         public static void Main(string[] args)
         {
-            if(!File.Exists(String.Format("./blocks/{0}.json", "Status")))
-            {
-                Status status = new Status();
-                status.last_hash = "0";
-                status.neighbours = new List<Link>();
-                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
-                {
-                    JsonSerializer serializer = new JsonSerializer();
-                    serializer.Serialize(file, status);
-                }
-            }
+            //if(!File.Exists(String.Format("./blocks/{0}.json", "Status")))
+            //{
+            //    Status status = new Status();
+            //    status.last_hash = "0";
+            //    status.neighbours = new List<Link>();
+            //    using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Status")))
+            //    {
+            //        JsonSerializer serializer = new JsonSerializer();
+            //        serializer.Serialize(file, status);
+            //    }
+            //}
 
             BuildWebHost(args).Run();
         }
