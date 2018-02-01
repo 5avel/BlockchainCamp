@@ -28,13 +28,25 @@ namespace BlockchainCampTask
             //    }
             //}
 
+            if (!File.Exists(String.Format("./blocks/{0}.json", "Links")))
+            {
+                List<Link> links = new List<Link>();
+               
+                using (StreamWriter file = File.CreateText(String.Format("./blocks/{0}.json", "Links")))
+                {
+                    JsonSerializer serializer = new JsonSerializer();
+                    serializer.Serialize(file, links);
+                }
+            }
+
+            Console.WriteLine("Test");
             BuildWebHost(args).Run();
         }
 
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-            //.UseUrls("localhost:80")
+                    .UseUrls("http://192.168.44.66:8770")
                 .Build();
     }
 }
