@@ -56,6 +56,13 @@ namespace BlockchainCampTask.Controllers
             return Blockchain.Instance.CurStatus;
         }
 
+        [HttpGet("management/state")]
+        public Status State()
+        {
+            Console.WriteLine("GetState");
+            return Blockchain.Instance.CurStatus;
+        }
+
         // GET api/last_blocks/5
         //GET /blockchain/get_blocks/:num_blocks
         [HttpGet("blockchain/get_blocks/{num_blocks}")]
