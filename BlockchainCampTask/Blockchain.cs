@@ -62,7 +62,7 @@ namespace BlockchainCampTask
                 string json =  client.DownloadString(neighbour.url + "/blockchain/get_blocks/10000");
                 List<Block> listBlocks = JsonConvert.DeserializeObject<List<Block>>(json);
 
-                if(listBlocks.Count() == 0) return false;
+                if(listBlocks == null || listBlocks.Count() == 0) return false;
 
                 blockchainRepository.DelAllBlock();
                 foreach (Block item in listBlocks)
