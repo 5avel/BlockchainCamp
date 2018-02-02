@@ -24,8 +24,9 @@ namespace BlockchainCampTask.Models
         public string prev_hash { get; }
         public List<Transaction> tx { get; }
 
-        [JsonConverter(typeof(FormatConverter))]
+        //[JsonConverter(typeof(FormatConverter))]
         public Int64 ts { get; }
+        [LiteDB.BsonId]
         public string hash {get;}
 
         public string GetHash()

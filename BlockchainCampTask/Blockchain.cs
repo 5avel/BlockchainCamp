@@ -61,11 +61,20 @@ namespace BlockchainCampTask
             {
                 string json =  client.DownloadString(neighbour.url + "/blockchain/get_blocks/10000");
                 List<Block> listBlocks = JsonConvert.DeserializeObject<List<Block>>(json);
-                listBlocks.Count();
-                Console.WriteLine(json);
+
+                if(listBlocks.Count() == 0) return false;
+
+                blockchainRepository.DelAllBlock();
+                foreach (Block item in listBlocks)
+                {
+                    blockchainRepository.AddNewBlock(item);
+                    CurStatus.last_hash = item.hash;
+                }
+
+                UpdateStatus();
+                //Console.WriteLine(json);
                 return true;
             }
-                return true;
         }
 
         internal bool AddNewNeighbour(Neighbour neighbour)

@@ -33,6 +33,15 @@ namespace BlockchainNode.DAL
             }
         }
 
+        public void DelAllBlock()
+        {
+            using (var db = new LiteDatabase(dataPath))
+            {
+                var blocks = db.GetCollection<Block>("blocks");
+                blocks.Delete(x => x.hash != "");
+            }
+        }
+
         public void AddNewBlock(Block block)
         {
             using (var db = new LiteDatabase(dataPath))
