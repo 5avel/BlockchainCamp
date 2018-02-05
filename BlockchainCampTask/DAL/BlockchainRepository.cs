@@ -11,10 +11,7 @@ namespace BlockchainNode.DAL
 {
     public class BlockchainRepository
     {
-
         internal readonly string dataPath = @"Data/Blockchain.db";
-      
-
         public Block GetBlockByHash(string hash)
         {
             using (var db = new LiteDatabase(dataPath))
@@ -50,33 +47,6 @@ namespace BlockchainNode.DAL
                 blocks.Insert(block);
             }
         }
-
-        //public IEnumerable<Neighbour> GetAllNeighbours()
-        //{
-        //    using (var db = new LiteDatabase(dataPath))
-        //    {
-        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
-        //        return neighbours.FindAll();
-        //    }
-        //}
-
-        //public Neighbour GetFirstNeighbour()
-        //{
-        //    using (var db = new LiteDatabase(dataPath))
-        //    {
-        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
-        //        return neighbours.FindOne(x => !String.IsNullOrWhiteSpace(x.url));
-        //    }
-        //}
-
-        //public void AddNewNeighbour(Neighbour neighbour)
-        //{
-        //    using (var db = new LiteDatabase(dataPath))
-        //    {
-        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
-        //        neighbours.Insert(neighbour);
-        //    }
-        //}
 
         public IEnumerable<Transaction> GetAllTransaction()
         {

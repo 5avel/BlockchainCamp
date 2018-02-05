@@ -4,12 +4,8 @@ using BlockchainNode.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
-using System.IO;
 using System.Linq;
 using System.Net;
-using System.Net.Http;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace BlockchainCampTask
 {
@@ -22,9 +18,7 @@ namespace BlockchainCampTask
         {
             _listTransaction.Add(transaction);
             if(_listTransaction.Count == Block.RowsCount)
-            {
                 CreateNewBlock();
-            }
             return true;
         }
 
@@ -41,7 +35,7 @@ namespace BlockchainCampTask
             }
         }
 
-        internal bool Sync()
+        public bool Sync()
         {
             Neighbour neighbour = CurStatus.neighbours.FirstOrDefault();
 
@@ -64,7 +58,7 @@ namespace BlockchainCampTask
                 }
 
                 UpdateStatus();
-                //Console.WriteLine(json);
+                
                 return true;
             }
         }
@@ -76,8 +70,7 @@ namespace BlockchainCampTask
                 if (neighbour.id == n.id) return false;
             }
             CurStatus.neighbours.Add(neighbour);
-            //Links.Add(neighbour);
-            //blockchainRepository.AddNewNeighbour(neighbour);
+           
             UpdateStatus();
             return true;
         }
@@ -92,19 +85,16 @@ namespace BlockchainCampTask
             List<Block> blocks = new List<Block>();
             if (CurStatus.last_hash == "0") return blocks; // блоков нет
 
-            int counter = 0;
-
             Block curBlock = blockchainRepository.GetBlockByHash(CurStatus.last_hash);
             blocks.Add(curBlock); // последний блок
-            while(curBlock.prev_hash != "0" )
+            int counter = 0;
+            while (curBlock.prev_hash != "0" )
             {
-                
                 curBlock = blockchainRepository.GetBlockByHash(curBlock.prev_hash);
                 blocks.Add(curBlock);
                 counter++;
                 if (blocksCount > 0 && counter == blocksCount) break;
             }
-            //blocks.Reverse();
             return blocks;
         }
 
@@ -141,7 +131,7 @@ namespace BlockchainCampTask
         private void SendBlockToNeighbour(Block blockToSend, string senderId = "")
         {
             List<Neighbour> neighbours = CurStatus.neighbours;
-            if (neighbours.Count() == 0) return;
+            if (neighbours == null || neighbours.Count() == 0) return;
 
             foreach (var item in neighbours)
             {
@@ -152,6 +142,8 @@ namespace BlockchainCampTask
                 try
                 {
                     Answer answer = JsonConvert.DeserializeObject<Answer>(respResult);
+                    //if (!answer.success) CurStatus.neighbours.Remove(item);
+                    UpdateStatus();
                     Console.WriteLine(respResult);
                 }
                 catch (Exception ex)
@@ -166,14 +158,10 @@ namespace BlockchainCampTask
         private void CreateNewBlock()
         {
             Block block = new Block(CurStatus.last_hash, _listTransaction);
-
             blockchainRepository.AddNewBlock(block); 
-
             CurStatus.last_hash = block.hash;
             UpdateStatus();
-
             _listTransaction.Clear();
-
             SendBlockToNeighbour(block);
         }
 

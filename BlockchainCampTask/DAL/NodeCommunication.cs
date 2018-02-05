@@ -1,10 +1,6 @@
 ﻿using Newtonsoft.Json;
-using System;
-using System.Collections.Generic;
 using System.IO;
-using System.Linq;
 using System.Net;
-using System.Threading.Tasks;
 
 namespace BlockchainNode.DAL
 {
@@ -19,7 +15,6 @@ namespace BlockchainNode.DAL
             using (var streamWriter = new StreamWriter(httpWebRequest.GetRequestStream()))
             {
                 string json = JsonConvert.SerializeObject(sendingObject);
-
                 streamWriter.Write(json);
             }
 

@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
-
-namespace BlockchainNode.Models
+﻿namespace BlockchainNode.Models
 {
     //{"success":true,"status":"OK","message":"success"}
     public class Answer
@@ -12,10 +7,7 @@ namespace BlockchainNode.Models
         public string status { set; get; }
         public string message { set; get; }
 
-        public Answer()
-        {
-
-        }
+        public Answer(){   }
         public Answer(bool success, string status, string message)
         {
             this.success = success;
