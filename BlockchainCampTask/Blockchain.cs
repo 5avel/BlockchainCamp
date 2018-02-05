@@ -1,5 +1,6 @@
 ﻿using BlockchainCampTask.Models;
 using BlockchainNode.DAL;
+using BlockchainNode.Models;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
@@ -15,17 +16,16 @@ namespace BlockchainCampTask
     public class Blockchain
     {
         private BlockchainRepository blockchainRepository;
-
-        private object syncRoot = new object();
         private List<Transaction> _listTransaction = new List<Transaction>();
 
-        public void AddTransaction(Transaction transaction)
+        public bool AddTransaction(Transaction transaction)
         {
             _listTransaction.Add(transaction);
             if(_listTransaction.Count == Block.RowsCount)
             {
                 CreateNewBlock();
             }
+            return true;
         }
 
         private Status _curStatus;
@@ -41,26 +41,18 @@ namespace BlockchainCampTask
             }
         }
 
-        private List<Neighbour> _links;
-        public List<Neighbour> Links
-        {
-            get
-            {
-                if (_links == null)
-                {
-                    _links = blockchainRepository.GetAllNeighbours().ToList();
-                }
-                return _links;
-            }
-        }
-
         internal bool Sync()
         {
-            Neighbour neighbour = blockchainRepository.GetFirstNeighbour();
+            Neighbour neighbour = CurStatus.neighbours.FirstOrDefault();
+
+            if (neighbour == null) return false;
+
             using (WebClient client = new WebClient())
             {
                 string json =  client.DownloadString(neighbour.url + "/blockchain/get_blocks/10000");
                 List<Block> listBlocks = JsonConvert.DeserializeObject<List<Block>>(json);
+
+                listBlocks.Reverse();
 
                 if(listBlocks == null || listBlocks.Count() == 0) return false;
 
@@ -79,13 +71,13 @@ namespace BlockchainCampTask
 
         internal bool AddNewNeighbour(Neighbour neighbour)
         {
-            foreach (string n in CurStatus.neighbours)
+            foreach (Neighbour n in CurStatus.neighbours)
             {
-                if (neighbour.id == n) return false;
+                if (neighbour.id == n.id) return false;
             }
-            CurStatus.neighbours.Add(neighbour.id);
-            Links.Add(neighbour);
-            blockchainRepository.AddNewNeighbour(neighbour);
+            CurStatus.neighbours.Add(neighbour);
+            //Links.Add(neighbour);
+            //blockchainRepository.AddNewNeighbour(neighbour);
             UpdateStatus();
             return true;
         }
@@ -112,7 +104,7 @@ namespace BlockchainCampTask
                 counter++;
                 if (blocksCount > 0 && counter == blocksCount) break;
             }
-            blocks.Reverse();
+            //blocks.Reverse();
             return blocks;
         }
 
@@ -148,22 +140,25 @@ namespace BlockchainCampTask
 
         private void SendBlockToNeighbour(Block blockToSend, string senderId = "")
         {
-            List<Neighbour> neighbours = blockchainRepository.GetAllNeighbours().ToList();
+            List<Neighbour> neighbours = CurStatus.neighbours;
             if (neighbours.Count() == 0) return;
 
             foreach (var item in neighbours)
             {
-
                 if (item.id == senderId) continue; // пропуск сендера
-
-                using (var client = new HttpClient())
+                string respResult = NodeCommunication.SendObjectAsJson(
+                    new { sender_id = CurStatus.id, block = blockToSend },
+                    item.url+ "/blockchain/receive_update");
+                try
                 {
-                    client.PostAsync(
-                        item.url + "/blockchain/receive_update",
-                        new JsonContent(
-                            new { sender_id = CurStatus.id, block = blockToSend }
-                            ));
+                    Answer answer = JsonConvert.DeserializeObject<Answer>(respResult);
+                    Console.WriteLine(respResult);
                 }
+                catch (Exception ex)
+                {
+                    Console.WriteLine(ex.Message);
+                }
+               
             }
         }
 
@@ -198,16 +193,7 @@ namespace BlockchainCampTask
                 return instance;
             }
         }
-    }
 
-
-
-
-
-    public class JsonContent : StringContent
-    {
-        public JsonContent(object obj) :
-            base(JsonConvert.SerializeObject(obj), Encoding.UTF8, "application/json")
-        { }
+        
     }
 }

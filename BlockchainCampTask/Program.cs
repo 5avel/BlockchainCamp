@@ -24,7 +24,7 @@ namespace BlockchainCampTask
         public static IWebHost BuildWebHost(string[] args) =>
             WebHost.CreateDefaultBuilder(args)
                 .UseStartup<Startup>()
-                    .UseUrls("http://192.168.88.27:8770")
+                    .UseUrls("http://192.168.88.9:8770")
                 .Build();
     }
 }

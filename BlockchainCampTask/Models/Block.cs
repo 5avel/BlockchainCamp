@@ -10,29 +10,34 @@ namespace BlockchainCampTask.Models
 {
     public class Block
     {
+        public Block()
+        {
+                
+        }
         public Block(string prev_hash, List<Transaction> tx)
         {
-            if (tx.Count != RowsCount || String.IsNullOrEmpty(prev_hash))
+            if (tx.Count != RowsCount || String.IsNullOrWhiteSpace(prev_hash))
                 throw new ArgumentException();
 
             this.prev_hash = prev_hash;
-            this.tx = tx;
+            this.tx = new List<Transaction>(tx);// новый лист
             this.ts = (int)(DateTime.UtcNow - new DateTime(1970, 1, 1)).TotalSeconds;
             this.hash = GetHash();
         }
-        public static readonly int RowsCount = 5;
-        public string prev_hash { get; }
-        public List<Transaction> tx { get; }
 
-        [JsonConverter(typeof(FormatConverter))]
-        public Int64 ts { get; }
+        public static readonly int RowsCount = 5;
+        public string prev_hash { get; set; }
+        public List<Transaction> tx { get; set; }
+
+        //[JsonConverter(typeof(FormatConverter))]
+        public Int64 ts { get; set; }
         [LiteDB.BsonId]
-        public string hash {get;}
+        public string hash { get; set; }
 
         public string GetHash()
         {
             string block_data = this.prev_hash;
-           
+            
             foreach (Transaction trans in tx)
             {
                 block_data += trans.from;

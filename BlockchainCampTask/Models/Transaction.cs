@@ -10,12 +10,12 @@ namespace BlockchainCampTask.Models
                 to:string,
                 amount:int
             }*/
-    public struct Transaction
+    public class Transaction
     {
         public string from { get; set; }
         public string to { get; set; }
 
-        [JsonConverter(typeof(FormatConverter))]
+        //[JsonConverter(typeof(FormatConverter))]
         public Int64 amount { get; set; }
     }
 }

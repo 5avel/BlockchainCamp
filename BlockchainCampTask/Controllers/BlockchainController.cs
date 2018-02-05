@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using BlockchainCampTask.Models;
+using BlockchainNode.Models;
 using Microsoft.AspNetCore.Mvc;
 
 namespace BlockchainCampTask.Controllers
@@ -16,8 +17,17 @@ namespace BlockchainCampTask.Controllers
         public IActionResult AddTransaction([FromBody]Transaction transaction)
         {
             Console.WriteLine("AddTransaction");
-            Blockchain.Instance.AddTransaction(transaction);
-            return Ok();
+            if (transaction == null
+                || string.IsNullOrWhiteSpace(transaction.from)
+                || string.IsNullOrWhiteSpace(transaction.to)
+                || transaction.amount <= 0)
+                    return Ok(new Answer(false));
+
+            if(Blockchain.Instance.AddTransaction(transaction))
+            {
+                return Ok(new Answer(true));
+            }
+            return Ok(new Answer(false));
         }
 
         //POST /management/add_link
@@ -28,11 +38,11 @@ namespace BlockchainCampTask.Controllers
         {
             if(Blockchain.Instance.AddNewNeighbour(neighbour))
             {
-                Console.WriteLine("This link already exists.");
-                return Ok(new { msg = "This link already exists."});
+                Console.WriteLine("Link added: id - {0}, url - {1}", neighbour.id, neighbour.url);
+                return Ok(new Answer(true));
             }
-            Console.WriteLine("Add id - {0}", neighbour.id);
-            return Ok();
+            Console.WriteLine("This link already exists: id - {0}", neighbour.id);
+            return Ok(new Answer(false, "Error", "This link already exists."));
         }
 
         //GET /management/sync  - вызываем мы что б скачать с соседей начальный блокчейн
@@ -42,9 +52,9 @@ namespace BlockchainCampTask.Controllers
             Console.WriteLine("Sync");
             if (Blockchain.Instance.Sync())
             {
-                return Ok(new { succeess = true, status = "OK", message = "" });
+                return Ok(new Answer(true));
             }
-            return Ok(new { succeess = false, err_code = "ERR", message = "" });
+            return Ok(new Answer(false));
         }
 
         //GET /management/status
@@ -83,9 +93,9 @@ namespace BlockchainCampTask.Controllers
             Console.WriteLine("ReceiveUpdate id-{0}", ruData.sender_id);
             if(Blockchain.Instance.AddNewBlosk(ruData.block, ruData.sender_id))
             {
-                return Ok(new { succeess = true, err_code = "OK", message = ""});
+                return Ok(new Answer(true));
             }
-            return Ok(new { succeess = false, err_code = "ERR_WRONG_HASH", message = "" });
+            return Ok(new Answer(false, "ERR_WRONG_HASH", "failed"));
         }
 
         public class RUData

@@ -11,7 +11,7 @@ namespace BlockchainCampTask.Models
         public string id { get; }
         public string name { get; }
         public string last_hash { set; get; }
-        public List<string> neighbours { get; set; }
+        public List<Neighbour> neighbours { get; set; }
 
         public string url { get; set; }
 

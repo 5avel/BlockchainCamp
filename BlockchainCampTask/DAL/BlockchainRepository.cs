@@ -51,32 +51,32 @@ namespace BlockchainNode.DAL
             }
         }
 
-        public IEnumerable<Neighbour> GetAllNeighbours()
-        {
-            using (var db = new LiteDatabase(dataPath))
-            {
-                var neighbours = db.GetCollection<Neighbour>("neighbours");
-                return neighbours.FindAll();
-            }
-        }
+        //public IEnumerable<Neighbour> GetAllNeighbours()
+        //{
+        //    using (var db = new LiteDatabase(dataPath))
+        //    {
+        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
+        //        return neighbours.FindAll();
+        //    }
+        //}
 
-        public Neighbour GetFirstNeighbour()
-        {
-            using (var db = new LiteDatabase(dataPath))
-            {
-                var neighbours = db.GetCollection<Neighbour>("neighbours");
-                return neighbours.FindOne(x => !String.IsNullOrWhiteSpace(x.url));
-            }
-        }
+        //public Neighbour GetFirstNeighbour()
+        //{
+        //    using (var db = new LiteDatabase(dataPath))
+        //    {
+        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
+        //        return neighbours.FindOne(x => !String.IsNullOrWhiteSpace(x.url));
+        //    }
+        //}
 
-        public void AddNewNeighbour(Neighbour neighbour)
-        {
-            using (var db = new LiteDatabase(dataPath))
-            {
-                var neighbours = db.GetCollection<Neighbour>("neighbours");
-                neighbours.Insert(neighbour);
-            }
-        }
+        //public void AddNewNeighbour(Neighbour neighbour)
+        //{
+        //    using (var db = new LiteDatabase(dataPath))
+        //    {
+        //        var neighbours = db.GetCollection<Neighbour>("neighbours");
+        //        neighbours.Insert(neighbour);
+        //    }
+        //}
 
         public IEnumerable<Transaction> GetAllTransaction()
         {
@@ -102,7 +102,7 @@ namespace BlockchainNode.DAL
             {
                 var status = db.GetCollection<Status>("status");
                 if (status.Count() == 0)
-                    status.Insert(new Status { last_hash = "0", neighbours = new List<string>(), url = "192.168.88.27:8770" });
+                    status.Insert(new Status { last_hash = "0", neighbours = new List<Neighbour>(), url = "http://red.delphin.com.ua:8888" });
                 return status.FindOne(x => !String.IsNullOrWhiteSpace(x.name));
             }
         }
